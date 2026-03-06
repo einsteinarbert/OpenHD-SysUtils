@@ -738,6 +738,9 @@ std::string driver_to_type(const std::string& driver_name) {
   if (contains_after_uppercase(driver_name, "mt7921u")) {
     return "MT_7921u";
   }
+  if (contains_after_uppercase(driver_name, "8814au")) {
+    return "OPENHD_RTL_8814AU";
+  }
   return "UNKNOWN";
 }
 
@@ -1090,6 +1093,8 @@ std::vector<WifiCardInfo> detect_wifi_cards(
   return cards;
 }
 
+}  // namespace
+
 void refresh_wifi_info() {
   const auto overrides = load_overrides();
   const auto tx_overrides = load_tx_power_overrides();
@@ -1097,8 +1102,6 @@ void refresh_wifi_info() {
   g_wifi_cards = detect_wifi_cards(overrides, tx_overrides, profiles);
   g_wifi_initialized = true;
 }
-
-}  // namespace
 
 void init_wifi_info() {
   refresh_wifi_info();
