@@ -27,6 +27,7 @@
 #include <atomic>
 #include <chrono>
 #include <cctype>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <mutex>
@@ -81,6 +82,16 @@ std::string to_lower(std::string value) {
   std::transform(value.begin(), value.end(), value.begin(),
                  [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
   return value;
+}
+
+bool led_control_disabled() {
+  const char* value = std::getenv("LED_DISABLE");
+  if (value == nullptr) {
+    return false;
+  }
+
+  const auto lower = to_lower(value);
+  return lower == "1" || lower == "true" || lower == "yes" || lower == "on";
 }
 
 bool write_file(const std::string& path, const std::string& value) {
@@ -155,6 +166,10 @@ void alternate_once(const LedPattern& pattern) {
 
 LedLayout discover_leds() {
   LedLayout layout;
+  if (led_control_disabled()) {
+    return layout;
+  }
+
   std::error_code ec;
   const std::filesystem::path root("/sys/class/leds");
   if (!std::filesystem::exists(root, ec)) {
